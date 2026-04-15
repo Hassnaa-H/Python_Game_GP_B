@@ -3,20 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Level 9</title>
+    <title>Level 10</title>
     <link rel="stylesheet" href="CSS/style.css">
 </head>
 <body>
     <header>
         <span class="logo"><img class="HDlogo" src="../level_logo.png" alt=""></span>
         <nav class="navBar">
-            <div><span class="span">Level 9: goals & rewards</span></div>
-            <div class="line">collect all items before reaching the goal.</div>
+            <div><span class="span">Level 10: think like a programmer!</span></div>
+            <div class="line">your code runs.but does it think? </div>
         </nav>
     </header>
     <main class="main">
         <img src="player.png" alt="Player" class="player">  
-        <img src="Level_9.png" alt="Level_9" class="bord">  
+        <img src="Level_10.png" alt="Level_10" class="bord">  
         <img src="Diamond.png" alt="Diamond" class="item item1">
         <img src="Diamond.png" alt="Diamond" class="item item2">
         <img src="Diamond.png" alt="Diamond" class="item item3">
@@ -27,11 +27,13 @@
     <aside class="sidebar">
         <p class="sidebar-title">Write Your Code Here</p>
         <section class="sidebar-body">
-            <p class="message">collect everything before you finish!</p>
+            <p class="message">make your character decide what to do!</p>
             <section class="border-bot">
-                <p class="low-indentation">if item_ahead()</p>
-                <p class="indentation">collect_item()</p>              
-                <p class="low-indentation">move_forward()</p>
+                <p class="low-indentation">while not at_goal():</p>
+                <p class="indentation">if path_is_clear():</p>              
+                <p class="high-indentation indentation">move_forward()</p>
+                <p class="indentation">else:</p>
+                <p class="high-indentation indentation">turn_right()</p>
             </section>
             <p class="low-indentation"># move the character!</p>
         </section>
@@ -71,12 +73,12 @@
             <p class="result-text">You did it!</p>
             <p class="result-text">The commands worked in the right order.</p>
             <div class="result-buttons">
-                <button id="nextLevelButton" class="overlay-button">Next Level ▶⎢</button>
                 <button id="tryAgainButton" class="overlay-button secondary">Try Again ⟳</button>
             </div>
         </div>
     </div>
 
+    <script src="../shared/game-validator.js"></script>
     <script src="script.js"></script>
 </body>
 </html>

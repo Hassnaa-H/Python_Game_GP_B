@@ -75,18 +75,7 @@ async function runCode() {
     setPlayerPosition(START_POS);
 
     try {
-        const response = await fetch('/run', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ 
-                code,
-                level: getCurrentLevel()
-            })
-        });
-
-        const result = await response.json();
+        const result = window.GameValidator ? window.GameValidator.validate(code, getCurrentLevel()) : { success: false, moves: [], message: 'Code validation engine failed to load.' };
         
         if (!result.moves) {
             statusMessage.textContent = `❌ ${result.message || 'Invalid code or incorrect sequence.'}`;
@@ -104,7 +93,7 @@ async function runCode() {
             statusMessage.textContent = `❌ ${result.message}`;
         }
     } catch (error) {
-        statusMessage.textContent = `Network error: ${error.message}`;
+        statusMessage.textContent = `Validation error: ${error.message}`;
     } finally {
         runButton.disabled = false;
     }

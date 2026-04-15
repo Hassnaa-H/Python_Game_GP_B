@@ -3,44 +3,52 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Level 8</title>
+    <title>Level 9</title>
     <link rel="stylesheet" href="CSS/style.css">
 </head>
 <body>
     <header>
         <span class="logo"><img class="HDlogo" src="../level_logo.png" alt=""></span>
         <nav class="navBar">
-            <div><span class="span">Level 8: obstacles</span></div>
-            <div class="line">avoid obstacles and move safely.</div>
+            <div><span class="span">Level 9: goals & rewards</span></div>
+            <div class="line">collect all items before reaching the goal.</div>
         </nav>
     </header>
     <main class="main">
         <img src="player.png" alt="Player" class="player">  
-        <img src="Level_8.png" alt="Level_8" class="bord">    
+        <img src="Level_9.png" alt="Level_9" class="bord">  
+        <img src="Diamond.png" alt="Diamond" class="item item1">
+        <img src="Diamond.png" alt="Diamond" class="item item2">
+        <img src="Diamond.png" alt="Diamond" class="item item3">
+        <img src="Diamond.png" alt="Diamond" class="item item4">
+        <img src="Diamond.png" alt="Diamond" class="item item5">
+
     </main>
     <aside class="sidebar">
         <p class="sidebar-title">Write Your Code Here</p>
         <section class="sidebar-body">
-            <p class="message">follow the path using a loop!</p>
+            <p class="message">collect everything before you finish!</p>
             <section class="border-bot">
-                <p class="low-indentation">if path_is_clear() and not obstacle_ahead():</p>
-                
-                <p class="indentation">move_forward()</p>
+                <p class="low-indentation">if item_ahead()</p>
+                <p class="indentation">collect_item()</p>              
+                <p class="low-indentation">move_forward()</p>
             </section>
             <p class="low-indentation"># move the character!</p>
         </section>
+        <div id="diamondCounter" class="counter">Scoure: 0</div>
         <textarea id="codeInput" class="textarea"></textarea>
         <button id="runButton" class="button" type="button">Run</button>
-        <div id="statusMessage" class="status"></div>
+        <div id="statusMessage" class="status"></div>>
     </aside>
     <footer class="footer">
         <section class="list">
             <p class="dico">Commands You Can Use :</p>
             <ul class="columns">
+                <li>item_ahead()</li>
+                <li>collect_item()</li>
                 <li>move commands</li>
-                <li>obstacle_ahead()</li>
-                <li>path_is_clear()</li>
                 <li>if</li>
+                <li>loops</li>
                 
             </ul>
         </section>
@@ -49,12 +57,14 @@
             <dl>
                 <dt class="dico2">Example Code :</dt>
                 <dd>for move in path:</dd>
-                <dd class="ident">if not obstacle_ahead():</dd>
-                <dd class="more_ident">do(move)</dd>
+                <dd class="ident">if not item-ahead():</dd>
+                <dd class="more_ident">collect_item()</dd>
+                <dd class="ident">do(move)</dd>
                 
             </dl>
         </section>
     </footer>
+
     <div id="resultOverlay" class="result-overlay hidden">
         <div class="result-card">
             <h2>Great Job! 🎉</h2>
@@ -67,7 +77,7 @@
         </div>
     </div>
 
+    <script src="../shared/game-validator.js"></script>
     <script src="script.js"></script>
-
 </body>
 </html>
