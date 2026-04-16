@@ -1,4 +1,6 @@
 (function () {
+    const API_ENDPOINT = '/run';
+
     const COMMAND_MAP = {
         'move_right()': 'right',
         'move_left()': 'left',
@@ -107,7 +109,7 @@
         return { moves: moves, pos: cursor };
     }
 
-    function validate(code, level) {
+    function validateLocally(code, level) {
         if (!code || !code.trim()) {
             return {
                 success: false,
@@ -155,6 +157,33 @@
                 moves: [],
                 message: error.message
             };
+        }
+    }
+
+    async function validate(code, level) {
+        const payload = {
+            code: code,
+            level: level
+        };
+
+        try {
+            const response = await fetch(API_ENDPOINT, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(payload)
+            });
+
+            const data = await response.json();
+            return {
+                success: Boolean(data.success),
+                moves: Array.isArray(data.moves) ? data.moves : [],
+                message: data.message || 'Validation failed.'
+            };
+        } catch (error) {
+            // Fallback lets levels still run if backend is unavailable.
+            return validateLocally(code, level);
         }
     }
 

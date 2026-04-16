@@ -101,7 +101,7 @@ async function runCode() {
     console.log('Game reset: diamonds restored, counter set to 0');
 
     try {
-        const result = window.GameValidator ? window.GameValidator.validate(code, getCurrentLevel()) : { success: false, moves: [], message: 'Code validation engine failed to load.' };
+        const result = window.GameValidator ? await window.GameValidator.validate(code, getCurrentLevel()) : { success: false, moves: [], message: 'Code validation engine failed to load.' };
         
         if (!result.moves) {
             statusMessage.textContent = `❌ ${result.message || 'Invalid code or incorrect sequence.'}`;
