@@ -36,8 +36,8 @@ LEVEL_SEQUENCES = {
     'Level_6': ['right', 'right', 'right', 'right','right','down', 'down','left', 'left', 'left','left','left','down', 'down'],
     'Level_7': ['right','right','right','right','right', 'down', 'down','left', 'left', 'left','left','left','down', 'down','right', 'right', 'right', 'right','right','down', 'down'],
     'Level_8': ['right','up', 'right', 'right', 'right','right','up', 'right', 'right','down'],
-    'Level_9': ['down','down', 'right', 'down','down','up', 'up','up','up' ,'right', 'right','down', 'right', 'left', 'left','down','down','down', 'right','down','down','down', 'right', 'right'],
-    'Level_10': ['down','down', 'right', 'down','down','up', 'up','up','up' ,'right', 'right','down', 'right', 'left', 'left','down','down','down', 'right','down','down','down', 'right', 'right','down']
+    'Level_9': ['down','down', 'right', 'down','down','up', 'up','up','up' ,'right', 'right','down', 'right', 'left', 'left','down','down','down', 'right','right','right','left','left','down','down','down', 'right', 'right'],
+    'Level_10': ['down','down', 'right', 'up','up', 'right', 'right','down', 'left', 'down','down','down', 'right', 'down','down','down', 'right', 'right','down']
 }
 
 # Optional full walkable-tile maps for levels that have extra branches
@@ -48,6 +48,17 @@ LEVEL_WALKABLE_POSITIONS = {
         (2, -1), (3, -1), (4, -1), (5, -1),
         (5, -2), (6, -2), (7, -2), (7, -1),
         (5, 0), (5, 1)
+    },
+    "Level_9": {
+        (0, 0), (0, 1), (0, 2),
+        (1, 2), (1, 3), (1, 4),
+        (1, 1), (1, 0),
+        (2, 0), (3, 0), (3, 1),
+        (4, 1), (2, 1),
+        (2, 2), (2, 3), (2, 4),
+        (3, 4), (3, 5), (3, 6), (3, 7),
+        (4, 7), (5, 7),
+        (4, 4), (5, 4)
     }
 }
 
@@ -176,38 +187,45 @@ def run_code():
     level = data.get('level', 'Level_1')
 
     try:
-        moves, _ = parse_statements(code, 0)
-
         level_type = LEVEL_CONFIG.get(level, {}).get("type")
 
         if level_type == "sequence":
+            moves, _ = parse_statements(code, 0)
             return check_sequence(level, moves)
 
         elif level_type == "variables":
-            return check_variables(code, moves)
+            return check_variables(code)
 
         elif level_type == "loops":
+            moves, _ = parse_statements(code, 0)
             return check_loops(code, moves)
 
         elif level_type == "conditions":
+            moves, _ = parse_statements(code, 0)
             return check_conditions(code, moves)
 
         elif level_type == "functions":
+            moves, _ = parse_statements(code, 0)
             return check_functions(code, level, moves)
 
         elif level_type == "lists":
+            moves, _ = parse_statements(code, 0)
             return check_lists(code, level, moves)
 
         elif level_type == "smart_path":
+            moves, _ = parse_statements(code, 0)
             return check_smart_path(moves)
 
         elif level_type == "obstacles":
+            moves, _ = parse_statements(code, 0)
             return check_obstacles(moves)
 
         elif level_type == "goals_rewards":
+            moves, _ = parse_statements(code, 0)
             return check_rewards(moves)
 
         elif level_type == "final":
+            moves, _ = parse_statements(code, 0)
             return check_final(moves, code)
 
         else:
@@ -227,9 +245,11 @@ def check_sequence(level, moves):
 
     return success(moves, "Awesome! You stayed on the path and reached the treasure 🎉")
 
-def check_variables(code, moves):
+def check_variables(code):
     if "let" not in code:
         return error("Great start! Try using a variable with let.")
+
+    moves = parse_variable_moves(code)
 
     if len(moves) < 3:
         return error("You are close. Add a few more moves.")
@@ -251,7 +271,7 @@ def check_loops(code, moves):
     return success(moves, "Excellent! Your loop works great 🚀")
 
 def check_conditions(code, moves):
-    if "if" not in code:
+    if not re.search(r'\bif\s*\(', code):
         return error("Add an if condition to make your logic smarter 🔀")
 
     treasure_check = ensure_reached_treasure("Level_4", moves)
@@ -261,8 +281,11 @@ def check_conditions(code, moves):
     return success(moves, "Well done! Condition used correctly ✅")
 
 def check_functions(code, level, moves):
-    if "function" not in code:
+    if not re.search(r'\bfunction\s+[A-Za-z_$][\w$]*\s*\(\s*\)\s*\{', code):
         return error("Create a function first, then call it 🧩")
+
+    if not re.search(r'\b(?!move_(?:right|left|up|down)\b)[A-Za-z_$][\w$]*\s*\(\s*\)\s*;', code):
+        return error("Nice function! Now call your function to run the moves ▶️")
 
     treasure_check = ensure_reached_treasure(level, moves)
     if treasure_check:
@@ -271,8 +294,11 @@ def check_functions(code, level, moves):
     return success(moves, "Great job! Function detected and path completed ✅")
 
 def check_lists(code, level, moves):
-    if "[" not in code or "]" not in code:
+    if not re.search(r'\blet\s+[A-Za-z_$][\w$]*\s*=\s*\[[^\]]*\]\s*;?', code):
         return error("Try using a list with [ ] to store your data 📚")
+
+    if not re.search(r'\brun_list\s*\(\s*[A-Za-z_$][\w$]*\s*\)\s*;?', code):
+        return error("Great list! Now use it with run_list(yourList); ▶️")
 
     treasure_check = ensure_reached_treasure(level, moves)
     if treasure_check:
@@ -281,8 +307,8 @@ def check_lists(code, level, moves):
     return success(moves, "Nice! List used correctly and treasure reached ✅")
 
 def check_smart_path(moves):
-    if len(moves) > 20:
-        return error("Good thinking. Can you solve it with fewer than 20 moves? 🧠")
+    if len(moves) > 21:
+        return error("Good thinking. Can you solve it with 21 moves or fewer? 🧠")
 
     treasure_check = ensure_reached_treasure("Level_7", moves)
     if treasure_check:
@@ -310,7 +336,8 @@ def check_obstacles(moves):
     return success(moves, "Excellent! You avoided all obstacles ✅")
 
 def check_rewards(moves):
-    rewards = [(2,1), (4,3)]
+    expected_moves = LEVEL_SEQUENCES.get('Level_9', [])
+    rewards = [(2,1), (3,4)]
     x, y = 0, 0
     collected = 0
     collected_rewards = set()
@@ -325,12 +352,15 @@ def check_rewards(moves):
             collected += 1
             collected_rewards.add((x, y))
 
-    if collected < 2:
-        return error("Almost there! Collect both rewards before finishing 🎯")
-
     treasure_check = ensure_reached_treasure("Level_9", moves)
     if treasure_check:
         return treasure_check
+
+    if collected < 2:
+        return error("Almost there! Collect both rewards before finishing 🎯")
+
+    if moves != expected_moves:
+        return error("Incorrect sequence.")
 
     return success(moves, "Fantastic! All rewards collected 🎉")
 
@@ -338,12 +368,16 @@ def check_final(moves, code):
     if "for" not in code or "if" not in code:
         return error("Final level tip: use both a loop and an if condition ⚠️")
 
-    if len(moves) < 10:
-        return error("Nice attempt! Try a more complete solution.")
-
     treasure_check = ensure_reached_treasure("Level_10", moves)
     if treasure_check:
         return treasure_check
+
+    shortest_moves = LEVEL_SEQUENCES.get("Level_10", [])
+    if len(moves) > len(shortest_moves):
+        return error("Hint: Use all you learned and choose the shortest path to the goal 🧠")
+
+    if moves != shortest_moves:
+        return error("Not the shortest correct route yet. Refine your decisions and try again ✨")
 
     return success(moves, "Legendary! You completed the final challenge 🏆")
 
@@ -353,6 +387,21 @@ def check_final(moves, code):
 
 FOR_PATTERN = re.compile(
     r'for\s*\(\s*let\s+([A-Za-z_$][\w$]*)\s*=\s*(\d+)\s*;\s*\1\s*<\s*(\d+)\s*;\s*\1\+\+\s*\)\s*\{'
+)
+IF_PATTERN = re.compile(
+    r'if\s*\(\s*(true|false)\s*\)\s*\{'
+)
+FUNCTION_DEF_PATTERN = re.compile(
+    r'function\s+([A-Za-z_$][\w$]*)\s*\(\s*\)\s*\{'
+)
+FUNCTION_CALL_PATTERN = re.compile(
+    r'([A-Za-z_$][\w$]*)\s*\(\s*\)'
+)
+LIST_DECL_PATTERN = re.compile(
+    r'let\s+([A-Za-z_$][\w$]*)\s*=\s*\[([^\]]*)\]\s*;?'
+)
+RUN_LIST_PATTERN = re.compile(
+    r'run_list\s*\(\s*([A-Za-z_$][\w$]*)\s*\)\s*;?'
 )
 
 def remove_comments(code):
@@ -371,7 +420,12 @@ def skip_semicolon(code, pos):
         pos += 1
     return pos
 
-def parse_statements(code, pos):
+def parse_statements(code, pos, functions=None, lists=None):
+    if functions is None:
+        functions = {}
+    if lists is None:
+        lists = {}
+
     moves = []
 
     while True:
@@ -381,9 +435,44 @@ def parse_statements(code, pos):
             break
 
         if code.startswith('for', pos):
-            loop_moves, pos = parse_for(code, pos)
+            loop_moves, pos = parse_for(code, pos, functions, lists)
             moves.extend(loop_moves)
             continue
+
+        if code.startswith('if', pos):
+            condition_moves, pos = parse_if(code, pos, functions, lists)
+            moves.extend(condition_moves)
+            continue
+
+        if code.startswith('function', pos):
+            pos = parse_function_definition(code, pos, functions, lists)
+            continue
+
+        list_decl_match = LIST_DECL_PATTERN.match(code, pos)
+        if list_decl_match:
+            list_name = list_decl_match.group(1)
+            list_body = list_decl_match.group(2)
+            lists[list_name] = parse_list_literal(list_body)
+            pos = list_decl_match.end()
+            continue
+
+        run_list_match = RUN_LIST_PATTERN.match(code, pos)
+        if run_list_match:
+            list_name = run_list_match.group(1)
+            if list_name not in lists:
+                raise ValueError(f"List '{list_name}' is used before it is declared.")
+            moves.extend(lists[list_name])
+            pos = run_list_match.end()
+            continue
+
+        call_match = FUNCTION_CALL_PATTERN.match(code, pos)
+        if call_match:
+            function_name = call_match.group(1)
+            if function_name in functions:
+                moves.extend(functions[function_name])
+                pos = call_match.end()
+                pos = skip_semicolon(code, pos)
+                continue
 
         matched = False
         for token, direction in COMMAND_MAP.items():
@@ -401,7 +490,7 @@ def parse_statements(code, pos):
 
     return moves, pos
 
-def parse_for(code, pos):
+def parse_for(code, pos, functions, lists):
     match = FOR_PATTERN.match(code, pos)
     if not match:
         raise ValueError(f"Your for loop format looks incorrect near position {pos}.")
@@ -412,7 +501,7 @@ def parse_for(code, pos):
 
     pos = match.end()
 
-    body_moves, pos = parse_statements(code, pos)
+    body_moves, pos = parse_statements(code, pos, functions, lists)
 
     pos = skip_whitespace(code, pos)
     if pos >= len(code) or code[pos] != '}':
@@ -421,6 +510,133 @@ def parse_for(code, pos):
     pos += 1
 
     return body_moves * repeat, pos
+
+
+def parse_if(code, pos, functions, lists):
+    match = IF_PATTERN.match(code, pos)
+    if not match:
+        raise ValueError(f"Your if condition format looks incorrect near position {pos}.")
+
+    condition_value = match.group(1) == 'true'
+    pos = match.end()
+
+    body_moves, pos = parse_statements(code, pos, functions, lists)
+
+    pos = skip_whitespace(code, pos)
+    if pos >= len(code) or code[pos] != '}':
+        raise ValueError("Your if statement is missing a closing } brace.")
+
+    pos += 1
+
+    return (body_moves if condition_value else []), pos
+
+
+def parse_function_definition(code, pos, functions, lists):
+    match = FUNCTION_DEF_PATTERN.match(code, pos)
+    if not match:
+        raise ValueError(f"Your function format looks incorrect near position {pos}.")
+
+    function_name = match.group(1)
+    pos = match.end()
+
+    body_moves, pos = parse_statements(code, pos, functions, lists)
+
+    pos = skip_whitespace(code, pos)
+    if pos >= len(code) or code[pos] != '}':
+        raise ValueError("Your function is missing a closing } brace.")
+
+    pos += 1
+    functions[function_name] = body_moves
+    return pos
+
+
+def parse_list_literal(list_body):
+    raw = list_body.strip()
+    if not raw:
+        return []
+
+    values = []
+    for part in raw.split(','):
+        item = part.strip()
+        token_match = re.fullmatch(r"['\"](right|left|up|down)['\"]", item)
+        if not token_match:
+            raise ValueError("List items must be one of: 'right', 'left', 'up', 'down'.")
+        values.append(token_match.group(1))
+
+    return values
+
+
+def expand_axis_moves(axis, delta):
+    if delta == 0:
+        return []
+
+    if axis == 'x':
+        token = 'right' if delta > 0 else 'left'
+    elif axis == 'y':
+        token = 'down' if delta > 0 else 'up'
+    else:
+        return []
+
+    return [token] * abs(delta)
+
+
+def parse_variable_moves(code):
+    variables = {}
+    moves = []
+
+    for line_no, raw_line in enumerate(code.splitlines(), start=1):
+        line = raw_line.strip()
+        if not line:
+            continue
+
+        if line.endswith(';'):
+            line = line[:-1].strip()
+
+        decl_match = re.fullmatch(r'let\s+([A-Za-z_$][\w$]*)\s*=\s*(-?\d+)', line)
+        if decl_match:
+            name = decl_match.group(1)
+            value = int(decl_match.group(2))
+            old_value = variables.get(name, 0)
+            variables[name] = value
+            if name in ('x', 'y'):
+                moves.extend(expand_axis_moves(name, value - old_value))
+            continue
+
+        assign_math_match = re.fullmatch(
+            r'([A-Za-z_$][\w$]*)\s*=\s*([A-Za-z_$][\w$]*)\s*([+-])\s*(\d+)',
+            line
+        )
+        if assign_math_match:
+            target = assign_math_match.group(1)
+            source = assign_math_match.group(2)
+            operator = assign_math_match.group(3)
+            amount = int(assign_math_match.group(4))
+
+            if source not in variables:
+                raise ValueError(f"Variable '{source}' is used before it is declared (line {line_no}).")
+
+            source_value = variables[source]
+            new_value = source_value + amount if operator == '+' else source_value - amount
+            old_value = variables.get(target, 0)
+            variables[target] = new_value
+
+            if target in ('x', 'y'):
+                moves.extend(expand_axis_moves(target, new_value - old_value))
+            continue
+
+        assign_value_match = re.fullmatch(r'([A-Za-z_$][\w$]*)\s*=\s*(-?\d+)', line)
+        if assign_value_match:
+            name = assign_value_match.group(1)
+            new_value = int(assign_value_match.group(2))
+            old_value = variables.get(name, 0)
+            variables[name] = new_value
+            if name in ('x', 'y'):
+                moves.extend(expand_axis_moves(name, new_value - old_value))
+            continue
+
+        raise ValueError(f"I could not understand this variable statement on line {line_no}.")
+
+    return moves
 
 # =========================
 # STATIC
