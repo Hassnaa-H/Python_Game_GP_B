@@ -418,6 +418,14 @@
         const targetSequence = LEVEL_SEQUENCES[level] || LEVEL_SEQUENCES.Level_1;
 
         try {
+            if (level === 'Level_2' && !/\blet\s+[A-Za-z_$][\w$]*\s*=/.test(cleanedCode)) {
+                return {
+                    success: false,
+                    moves: [],
+                    message: 'Great start! Try using a variable with let.'
+                };
+            }
+
             if (level === 'Level_4' && !/\bif\s*\(/.test(cleanedCode)) {
                 return {
                     success: false,
